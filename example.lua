@@ -2,7 +2,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/94rn/
 
 -- Create the window
 local Window = Library:Window({
-    Logo = "77218680285262",  -- Your logo asset ID
+    Logo = "92260093695706",  -- Your logo asset ID
     FadeTime = 0.3,
 })
 
