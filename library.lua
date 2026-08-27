@@ -6325,8 +6325,8 @@ SettingsSection:Textbox({
         
         -- Toggle UI on click - uses the window directly
         button.MouseButton1Click:Connect(function()
-            if Window and Window.Items and Window.Items["MainFrame"] then
-                local mainFrame = Window.Items["MainFrame"].Instance
+            if Items and Items["Window"] and Items["Window"].Instance then
+                local mainFrame = Items["Window"].Instance
                 mainFrame.Visible = not mainFrame.Visible
             end
         end)
