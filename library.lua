@@ -5195,6 +5195,11 @@ local Library do
 
             Items["Window"].Instance.Visible = false
 
+            Items["uiScale"] = Instances:Create("UIScale", {
+                Name = "UiScaleey",
+                Parent = Items["Window"].Instance
+            })
+
             Items["Logo"] = Instances:Create("ImageLabel", {
                 Parent = Items["Side"].Instance,
                 Name = "\0",
@@ -5498,6 +5503,13 @@ local Library do
         Window:SetOpen(true)
         return setmetatable(Window, self)
     end
+
+    function SetScale(scale)
+    local scaleNumber = tonumber(scale)
+    if scaleNumber and scaleNumber >= 0.4 and scaleNumber <= 2 then
+        Items["uiScale"].Instance.Scale = scaleNumber
+    end
+end
 
     Library.Page = function(self, Data)
         Data = Data or { }
@@ -6134,11 +6146,30 @@ local Library do
                     SettingsSection:Toggle({
                         Name = "Watermark",
                         Flag = "Watermark",
-                        Default = true,
+                        Default = false,
                         Callback = function(Value)
                             Watermark:SetVisibility(Value)
                         end
                     })
+
+                        local scaley
+                        SettingsSection:Textbox({
+                        Name = "UI Scale", 
+                        Default = "0.75", 
+                        Flag = "ConfigName", 
+                        Placeholder = "1 = origin", 
+                        Callback = function(Value)
+                            scaley = Value
+                        end
+                    })
+
+                                    task.spawn(function()
+                                        while task.wait(0) do
+                                            pcall(function()
+                                                    SetScale(scaley)
+                                            end)
+                                        end
+                                    end)
 
                     SettingsSection:Toggle({
                         Name = "Keybind list",
