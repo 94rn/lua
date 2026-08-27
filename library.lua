@@ -5334,39 +5334,40 @@ Library.UIScale = Items["uiScale"]
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
 
-            Items["MouseBackground"] = Instances:Create("Frame", {
-                Parent = Library.Holder.Instance,
-                Name = "\0",
-                BackgroundTransparency = 1,
-                Position = UDim2New(0, 0, 0, 0),
-                BorderColor3 = FromRGB(0, 0, 0),
-                Size = UDim2New(0, 16, 0, 16),
-                BorderSizePixel = 0,
-                ZIndex = 9999,
-                BackgroundColor3 = FromRGB(255, 255, 255)
-            })
+if not IsMobile then
+    Items["MouseBackground"] = Instances:Create("Frame", {
+        Parent = Library.Holder.Instance,
+        Name = "\0",
+        BackgroundTransparency = 1,
+        Position = UDim2New(0, 0, 0, 0),
+        BorderColor3 = FromRGB(0, 0, 0),
+        Size = UDim2New(0, 16, 0, 16),
+        BorderSizePixel = 0,
+        ZIndex = 9999,
+        BackgroundColor3 = FromRGB(255, 255, 255)
+    })
 
-            Items["MouseImage"] = Instances:Create("ImageLabel", {
-                Parent = Items["MouseBackground"].Instance,
-                Name = "\0",
-                BorderColor3 = FromRGB(0, 0, 0),
-                Image = "rbxassetid://76631660114196",
-                BackgroundTransparency = 1,
-                Size = UDim2New(1, 0, 1, 0),
-                BorderSizePixel = 0,
-                ZIndex = 9999,
-                BackgroundColor3 = FromRGB(255, 255, 255)
-            })  Items["MouseImage"]:AddToTheme({ImageColor3 = "Accent"})
+    Items["MouseImage"] = Instances:Create("ImageLabel", {
+        Parent = Items["MouseBackground"].Instance,
+        Name = "\0",
+        BorderColor3 = FromRGB(0, 0, 0),
+        Image = "rbxassetid://76631660114196",
+        BackgroundTransparency = 1,
+        Size = UDim2New(1, 0, 1, 0),
+        BorderSizePixel = 0,
+        ZIndex = 9999,
+        BackgroundColor3 = FromRGB(255, 255, 255)
+    })  Items["MouseImage"]:AddToTheme({ImageColor3 = "Accent"})
 
-            Instances:Create("UIGradient", {
-                Parent = Items["MouseImage"].Instance,
-                Name = "\0",
-                Rotation = 90,
-                Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(99, 108, 117))}
-            })
+    Instances:Create("UIGradient", {
+        Parent = Items["MouseImage"].Instance,
+        Name = "\0",
+        Rotation = 90,
+        Color = RGBSequence{RGBSequenceKeypoint(0, FromRGB(255, 255, 255)), RGBSequenceKeypoint(1, FromRGB(99, 108, 117))}
+    })
 
-            UserInputService.MouseIconEnabled = false
-
+    UserInputService.MouseIconEnabled = false
+end
             Window.Items = Items
         end
 
@@ -5392,10 +5393,12 @@ Library.UIScale = Items["uiScale"]
             Items["Search"]:Tween(nil, {BackgroundColor3 = Library.Theme.Background})
         end)
 
-        Library:Connect(RunService.RenderStepped, function()
-            local MouseLocation = UserInputService:GetMouseLocation() 
-            Items["MouseBackground"].Instance.Position = UDim2New(0, MouseLocation.X - 1, 0, MouseLocation.Y - 56)           
-        end)
+if not IsMobile then
+    Library:Connect(RunService.RenderStepped, function()
+        local MouseLocation = UserInputService:GetMouseLocation() 
+        Items["MouseBackground"].Instance.Position = UDim2New(0, MouseLocation.X - 1, 0, MouseLocation.Y - 56)           
+    end)
+end
 
         local OldSizes = { }
 
@@ -5411,52 +5414,56 @@ Library.UIScale = Items["uiScale"]
             end
         end
 
-        function Window:SetOpen(Bool)
-            if Debounce then 
-                return
-            end
+function Window:SetOpen(Bool)
+    if Debounce then 
+        return
+    end
 
-            Window.IsOpen = Bool
+    Window.IsOpen = Bool
 
-            Debounce = true 
+    Debounce = true 
 
-            if Window.IsOpen then 
-                Items["Window"].Instance.Visible = true 
-            end
+    if Window.IsOpen then 
+        Items["Window"].Instance.Visible = true 
+    end
 
-            local Descendants = Items["Window"].Instance:GetDescendants()
-            TableInsert(Descendants, Items["Window"].Instance)
+    local Descendants = Items["Window"].Instance:GetDescendants()
+    TableInsert(Descendants, Items["Window"].Instance)
 
-            local NewTween
+    local NewTween
 
-            for Index, Value in Descendants do 
-                local TransparencyProperty = Tween:GetProperty(Value)
+    for Index, Value in Descendants do 
+        local TransparencyProperty = Tween:GetProperty(Value)
 
-                if not TransparencyProperty then
-                    continue 
-                end
-
-                if type(TransparencyProperty) == "table" then 
-                    for _, Property in TransparencyProperty do 
-                        NewTween = Tween:FadeItem(Value, Property, Bool, Library.FadeSpeed)
-                    end
-                else
-                    NewTween = Tween:FadeItem(Value, TransparencyProperty, Bool, Library.FadeSpeed)
-                end
-            end
-            
-            NewTween.Tween.Completed:Connect(function()
-                Debounce = false 
-                Items["Window"].Instance.Visible = Window.IsOpen
-                if Window.IsOpen then
-                    Items["MouseBackground"].Instance.Visible = true
-                    UserInputService.MouseIconEnabled = false
-                else
-                    Items["MouseBackground"].Instance.Visible = false
-                    UserInputService.MouseIconEnabled = true
-                end
-            end)
+        if not TransparencyProperty then
+            continue 
         end
+
+        if type(TransparencyProperty) == "table" then 
+            for _, Property in TransparencyProperty do 
+                NewTween = Tween:FadeItem(Value, Property, Bool, Library.FadeSpeed)
+            end
+        else
+            NewTween = Tween:FadeItem(Value, TransparencyProperty, Bool, Library.FadeSpeed)
+        end
+    end
+    
+    NewTween.Tween.Completed:Connect(function()
+        Debounce = false 
+        Items["Window"].Instance.Visible = Window.IsOpen
+        if Window.IsOpen then
+            if not IsMobile then
+                Items["MouseBackground"].Instance.Visible = true
+                UserInputService.MouseIconEnabled = false
+            end
+        else
+            if not IsMobile then
+                Items["MouseBackground"].Instance.Visible = false
+                UserInputService.MouseIconEnabled = true
+            end
+        end
+    end)
+end
 
         Library:Connect(UserInputService.InputBegan, function(Input)
             if tostring(Input.KeyCode) == Library.MenuKeybind or tostring(Input.UserInputType) == Library.MenuKeybind then
