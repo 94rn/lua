@@ -948,6 +948,11 @@ local Library do
                     BackgroundColor3 = FromRGB(14, 17, 15)
                 })  Items["Window"]:AddToTheme({BackgroundColor3 = "Background", BorderColor3 = "Border"})
 
+                Items["uiScale"] = Instances:Create("UIScale", {
+                    Name = "UiScaleey",
+                    Parent = Items["Window"].Instance
+                })
+
                 if Data.Draggable then 
                     Items["Window"]:MakeDraggable()
                 end
@@ -5194,11 +5199,6 @@ local Library do
             Items["Side"]:Border("Border")
 
             Items["Window"].Instance.Visible = false
-
-            Items["uiScale"] = Instances:Create("UIScale", {
-                Name = "UiScaleey",
-                Parent = Items["Window"].Instance
-            })
 
             Items["Logo"] = Instances:Create("ImageLabel", {
                 Parent = Items["Side"].Instance,
