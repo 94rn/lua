@@ -6172,7 +6172,7 @@ SettingsSection:Textbox({
                     SettingsSection:Toggle({
                         Name = "Keybind list",
                         Flag = "Keybind list",
-                        Default = true,
+                        Default = false,
                         Callback = function(Value)
                             KeybindList:SetVisibility(Value)
                         end
