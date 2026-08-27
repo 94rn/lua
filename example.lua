@@ -1,4 +1,4 @@
-local Library = loadstring(game:HttpGet("your_paste_url_here"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/94rn/lua/refs/heads/main/library.lua"))()
 
 -- Create the window
 local Window = Library:Window({
