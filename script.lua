@@ -122,7 +122,8 @@ getgenv().Settings = {
         OpM1 = false,
         M1Power = 110,
         M1INDI = Vector3.new(0,0,0),
-        M1ChangeAt = 80
+        M1ChangeAt = 80,
+        NoEndlag = false
     },
     SZLoki = {
         GodspeedHbe = false,
@@ -153,6 +154,7 @@ local BallController = Knit.GetController("BallController")
 local AbilityService = Knit.GetService("AbilityService")
 local AbilityUtils = require(ReplicatedStorage.Shared.AbilityUtils)
 local AnimationController = require(ReplicatedStorage.Controllers.AnimationController)
+local StatesController = require(ReplicatedStorage.Controllers.StatesController)
 
 local originalAbilityCooldown = AbilityController.legacy.AbilityCooldown
 local originalExecuteAbilitySlot = AbilityController.ExecuteAbilitySlot
@@ -419,6 +421,23 @@ do -- Central Page
             Default = false,
             Callback = function(Value)
                 getgenv().Settings.Misc.CrossbarPhase = Value
+            end
+        })
+
+        MiscSection:Toggle({
+            Name = "Remove Ability Endlag",
+            Flag = "AbilityStateToggle",
+            Default = false,
+            Callback = function(Value)
+                getgenv().Settings.Toggles.AbilityState = Value
+                if Value then
+                    task.spawn(function()
+                        while getgenv().Settings.Misc.NoEndlag do
+                            task.wait()
+                            StatesController.States.Ability = false
+                        end
+                    end)
+                end
             end
         })
         
