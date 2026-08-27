@@ -126,6 +126,7 @@ local Library do
         KeyList = nil,
 
         Colorpickers = { },
+		UIScale = nil,
     }
 
     Library.__index = Library
@@ -949,10 +950,12 @@ local Library do
                 })  Items["Window"]:AddToTheme({BackgroundColor3 = "Background", BorderColor3 = "Border"})
 
                 Items["uiScale"] = Instances:Create("UIScale", {
-                    Name = "UiScaleey",
-                    Parent = Items["Window"].Instance
-                })
+    Name = "UiScaleey",
+    Parent = Items["Window"].Instance,
+    Scale = IsMobile and 0.75 or 1
+})
 
+Library.UIScale = Items["uiScale"]
                 if Data.Draggable then 
                     Items["Window"]:MakeDraggable()
                 end
@@ -5503,11 +5506,13 @@ local Library do
         Window:SetOpen(true)
         return setmetatable(Window, self)
     end
-
-    function SetScale(scale)
+ 
+function Library:SetScale(scale)
     local scaleNumber = tonumber(scale)
     if scaleNumber and scaleNumber >= 0.4 and scaleNumber <= 2 then
-        Items["uiScale"].Instance.Scale = scaleNumber
+        if self.UIScale then
+            self.UIScale.Instance.Scale = scaleNumber
+        end
     end
 end
 
@@ -6152,24 +6157,17 @@ end
                         end
                     })
 
-                        local scaley
-                        SettingsSection:Textbox({
-                        Name = "UI Scale", 
-                        Default = "0.75", 
-                        Flag = "ConfigName", 
-                        Placeholder = "1 = origin", 
-                        Callback = function(Value)
-                            scaley = Value
-                        end
-                    })
-
-                                    task.spawn(function()
-                                        while task.wait(0) do
-                                            pcall(function()
-                                                    SetScale(scaley)
-                                            end)
-                                        end
-                                    end)
+local scaley = 0.75
+SettingsSection:Textbox({
+    Name = "UI Scale", 
+    Default = "0.75", 
+    Flag = "UIScale", 
+    Placeholder = "0.4 - 2.0", 
+    Callback = function(Value)
+        scaley = tonumber(Value) or 0.75
+        Library:SetScale(scaley)
+    end
+})
 
                     SettingsSection:Toggle({
                         Name = "Keybind list",
