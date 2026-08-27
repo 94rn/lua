@@ -6322,12 +6322,10 @@ SettingsSection:Textbox({
                 update(dragInput)
             end
         end)
-        
-        -- Toggle UI on click - uses the window directly
+    
         button.MouseButton1Click:Connect(function()
-            if Items and Items["Window"] and Items["Window"].Instance then
-                local mainFrame = Items["Window"].Instance
-                mainFrame.Visible = not mainFrame.Visible
+            if Window then
+                Window:SetOpen(not Window.IsOpen)
             end
         end)
     end
