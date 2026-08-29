@@ -1647,9 +1647,9 @@ Library.UIScale = Items["uiScale"]
 
             Toggle:Set(Data.Default)
 
-            Library.SetFlags[Toggle.Flag] = function(Value)
-                Toggle:Set(Value)
-            end
+Library.SetFlags[Toggle.Flag] = function(Value)
+    Toggle:Set(Value)
+end
 
             return Toggle, Items
         end
@@ -2481,9 +2481,9 @@ Library.UIScale = Items["uiScale"]
                 Dropdown:Set(Data.Default)
             end
 
-            Library.SetFlags[Dropdown.Flag] = function(Value)
-                Dropdown:Set(Value)
-            end
+Library.SetFlags[Dropdown.Flag] = function(Value)
+    Dropdown:Set(Value)
+end
 
             return Dropdown, Items 
         end
@@ -4116,9 +4116,9 @@ Library.UIScale = Items["uiScale"]
                 Keybind:Set({Key = Data.Default, Mode = Data.Mode or "Toggle"})
             end
 
-            Library.SetFlags[Keybind.Flag] = function(Value)
-                Keybind:Set(Value)
-            end
+Library.SetFlags[Keybind.Flag] = function(Value)
+    Keybind:Set(Value)
+end
 
             return Keybind, Items 
         end
@@ -4255,9 +4255,9 @@ Library.UIScale = Items["uiScale"]
                 Textbox:Set(Data.Default)
             end
 
-            Library.SetFlags[Textbox.Flag] = function(Value)
-                Textbox:Set(Value)
-            end
+Library.SetFlags[Textbox.Flag] = function(Value)
+    Textbox:Set(Value)
+end
 
             return Textbox, Items
         end
