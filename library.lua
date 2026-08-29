@@ -844,9 +844,9 @@ Library.LoadConfig = function(self, Config)
     local Success, Result = Library:SafeCall(function()
         for Index, Value in Decoded do 
             local SetFunction = Library.SetFlags[Index]
-            
+
             if not SetFunction then
-                warn("Flag not found: " .. tostring(Index) .. " - Available flags: " .. table.concat(getKeys(Library.SetFlags), ", "))
+                warn("Flag not found: " .. tostring(Index))
                 continue
             end
 
@@ -862,35 +862,22 @@ Library.LoadConfig = function(self, Config)
 
     return Success, Result
 end
-    Library.DeleteConfig = function(self, Config)
-        if isfile(Library.Folders.Configs .. "/" .. Config) then 
-            delfile(Library.Folders.Configs .. "/" .. Config)
+
+Library.RefreshConfigsList = function(self, Element)
+    local List = {}
+
+    for _, file in ipairs(listfiles(Library.Folders.Configs)) do
+        local name = file:match("([^/\\]+)%.json$")
+        if name then
+            table.insert(List, name)
         end
     end
 
-    Library.RefreshConfigsList = function(self, Element)
-        local CurrentList = { }
-        local List = { }
-
-        local ConfigFolderName = StringGSub(Library.Folders.Configs, Library.Folders.Directory .. "/", "")
-
-        for Index, Value in listfiles(Library.Folders.Configs) do
-            local FileName = StringGSub(Value, Library.Folders.Directory .. "\\" .. ConfigFolderName .. "\\", "")
-            List[Index] = FileName
-        end
-
-        local IsNew = #List ~= CurrentList
-
-        if not IsNew then
-            for Index = 1, #List do
-                if List[Index] ~= CurrentList[Index] then
-                    IsNew = true
-                    break
-                end
-            end
-        else
-            CurrentList = List
-            Element:Refresh(CurrentList)
+    Element:Refresh(List)
+end
+    Library.DeleteConfig = function(self, Config)
+        if isfile(Library.Folders.Configs .. "/" .. Config) then 
+            delfile(Library.Folders.Configs .. "/" .. Config)
         end
     end
 
