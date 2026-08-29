@@ -844,8 +844,9 @@ Library.LoadConfig = function(self, Config)
     local Success, Result = Library:SafeCall(function()
         for Index, Value in Decoded do 
             local SetFunction = Library.SetFlags[Index]
-
+            
             if not SetFunction then
+                warn("Flag not found: " .. tostring(Index) .. " - Available flags: " .. table.concat(getKeys(Library.SetFlags), ", "))
                 continue
             end
 
