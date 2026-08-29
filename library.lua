@@ -6048,32 +6048,29 @@ end
         return BlankElement, Items
     end
 
-    Library.CreateSettingsPage = function(self, Window, Watermark, KeybindList)
-        local SettingsPage = Window:Page({Name = "Settings", SubPages = true}) do 
-            local ThemingSubPage = SettingsPage:SubPage({Name = "Theming", Columns = 2}) do 
-                local ThemesSection = ThemingSubPage:Section({Name = "Themes", Side = 1}) do
-                    for Index, Value in Library.Theme do 
-                        ThemesSection:Label(Index):Colorpicker({
-                            Name = Index,
-                            Flag = Index.."Theme",
-                            Default = Value,
-                            Callback = function(Value)
-                                Library.Theme[Index] = Value
-                                Library:ChangeTheme(Index, Value)
-                            end
-                        })
-                    end
+Library.CreateSettingsPage = function(self, Window)
+    local SettingsPage = Window:Page({Name = "Settings", SubPages = true}) do 
+        local ThemingSubPage = SettingsPage:SubPage({Name = "Theming", Columns = 2}) do 
+            local ThemesSection = ThemingSubPage:Section({Name = "Themes", Side = 1}) do
+                for Index, Value in Library.Theme do 
+                    ThemesSection:Label(Index):Colorpicker({
+                        Name = Index,
+                        Flag = Index.."Theme",
+                        Default = Value,
+                        Callback = function(Value)
+                            Library.Theme[Index] = Value
+                            Library:ChangeTheme(Index, Value)
+                        end
+                    })
                 end
             end
+        end
 
-Library.CreateSettingsPage = function(self, Window)
-    local SettingsPage = Window:Page({Name = "Settings", Icon = "72732892493295"}) do 
         local ConfigsSubPage = SettingsPage:SubPage({Name = "Configs"})
-        local ThemingSubPage = SettingsPage:SubPage({Name = "Theming"})
         local SettingsSubPage = SettingsPage:SubPage({Name = "Settings"})
 
         do -- Configs
-            local ConfigsSection = ConfigsSubPage:Section({Name = "Configs", Side = 1, Icon = "97491613646216"})
+            local ConfigsSection = ConfigsSubPage:Section({Name = "Configs", Side = 1})
 
             local ConfigName = ""
             local ConfigSelected
@@ -6199,7 +6196,7 @@ Library.CreateSettingsPage = function(self, Window)
         end
 
         do -- Settings
-            local SettingsSection = SettingsSubPage:Section({Name = "Settings", Icon = "72732892493295", Side = 1})     
+            local SettingsSection = SettingsSubPage:Section({Name = "Settings", Side = 1})     
             
             SettingsSection:Button({
                 Name = "Unload",
@@ -6214,7 +6211,7 @@ Library.CreateSettingsPage = function(self, Window)
             SettingsSection:Textbox({
                 Flag = "UIScale", 
                 Placeholder = "", 
-                Default = "0.75", 
+                Default = "1", 
                 Finished = false, 
                 Numeric = true, 
                 Callback = function(Value)
@@ -6225,7 +6222,7 @@ Library.CreateSettingsPage = function(self, Window)
             task.spawn(function()
                 while task.wait(0) do
                     pcall(function()
-                        SetScale(scaley)
+                        Library:SetScale(scaley)
                     end)
                 end
             end)
@@ -6276,10 +6273,8 @@ Library.CreateSettingsPage = function(self, Window)
             })
         end
     end
-end
-        
-        return SettingsPage
-    end
+    
+    return SettingsPage
 end
 
 getgenv().Library = Library
