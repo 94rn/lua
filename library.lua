@@ -6024,8 +6024,8 @@ end
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
 
-            Items["Text"] = Instances:Create("TextLabel", {
-                Parent = Items["Label"].Instance,
+Items["Text"] = Instances:Create("TextLabel", {
+    Parent = Items["BlankElement"].Instance,
                 Name = "\0",
                 FontFace = Library.Font,
                 TextColor3 = FromRGB(235, 235, 235),
@@ -6227,15 +6227,15 @@ Library.CreateSettingsPage = function(self, Window)
                 end
             end)
 
-            SettingsSection:Label("Menu Keybind"):Keybind({
-                Name = "Menu Keybind",
-                Flag = "MenuKeybind",
-                Default = Library.MenuKeybind,
-                Mode = "Toggle",
-                Callback = function()
-                    Library.MenuKeybind = Library.Flags["MenuKeybind"].Key
-                end
-            })
+SettingsSection:Label("Menu Keybind"):Keybind({
+    Name = "Menu Keybind",
+    Flag = "MenuKeybind",
+    Default = Library.MenuKeybind,
+    Mode = "Toggle",
+    Callback = function()
+        Library.MenuKeybind = Library.Flags["MenuKeybind"].Key
+    end
+})
 
             SettingsSection:Slider({
                 Name = "Tween Speed",
