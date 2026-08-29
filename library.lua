@@ -820,66 +820,79 @@ local Library do
 		return `<font color="rgb({MathFloor(Color.R * 255)}, {MathFloor(Color.G * 255)}, {MathFloor(Color.B * 255)})">{Text}</font>`
 	end
 
-Library.GetConfig = function(self)
-    local Config = { } 
+    Library.GetConfig = function(self)
+        local Config = { } 
 
-    local Success, Result = Library:SafeCall(function()
-        for Index, Value in Library.Flags do 
-            if type(Value) == "table" and Value.Key then
-                Config[Index] = {Key = tostring(Value.Key), Mode = Value.Mode}
-            elseif type(Value) == "table" and Value.Color then
-                Config[Index] = {Color = "#" .. Value.HexValue, Alpha = Value.Alpha}
-            else
-                Config[Index] = Value
+        local Success, Result = Library:SafeCall(function()
+            for Index, Value in Library.Flags do 
+                if type(Value) == "table" and Value.Key then
+                    Config[Index] = {Key = tostring(Value.Key), Mode = Value.Mode}
+                elseif type(Value) == "table" and Value.Color then
+                    Config[Index] = {Color = "#" .. Value.Color, Alpha = Value.Alpha}
+                else
+                    Config[Index] = Value
+                end
             end
-        end
-    end)
+        end)
 
-    return HttpService:JSONEncode(Config)
-end
-
-Library.LoadConfig = function(self, Config)
-    local Decoded = HttpService:JSONDecode(Config)
-
-    local Success, Result = Library:SafeCall(function()
-        for Index, Value in Decoded do 
-            local SetFunction = Library.SetFlags[Index]
-
-            if not SetFunction then
-                continue
-            end
-
-            if type(Value) == "table" and Value.Key then 
-                SetFunction(Value)
-            elseif type(Value) == "table" and Value.Color then
-                SetFunction(Value.Color, Value.Alpha)
-            else
-                SetFunction(Value)
-            end
-        end
-    end)
-
-    return Success, Result
-end
-
-Library.DeleteConfig = function(self, Config)
-    if isfile(Library.Folders.Configs .. "/" .. Config) then 
-        delfile(Library.Folders.Configs .. "/" .. Config)
+        return HttpService:JSONEncode(Config)
     end
-end
 
-Library.RefreshConfigsList = function(self, Element)
-    local List = {}
+    Library.LoadConfig = function(self, Config)
+        local Decoded = HttpService:JSONDecode(Config)
 
-    for _, file in ipairs(listfiles(Library.Folders.Configs)) do
-        local name = file:match("([^/\\]+)%.json$")
-        if name then
-            table.insert(List, name)
+        local Success, Result = Library:SafeCall(function()
+            for Index, Value in Decoded do 
+                local SetFunction = Library.SetFlags[Index]
+
+                if not SetFunction then
+                    continue
+                end
+
+                if type(Value) == "table" and Value.Key then 
+                    SetFunction(Value)
+                elseif type(Value) == "table" and Value.Color then
+                    SetFunction(Value.Color, Value.Alpha)
+                else
+                    SetFunction(Value)
+                end
+            end
+        end)
+
+        return Success, Result
+    end
+
+    Library.DeleteConfig = function(self, Config)
+        if isfile(Library.Folders.Configs .. "/" .. Config) then 
+            delfile(Library.Folders.Configs .. "/" .. Config)
         end
     end
 
-    Element:Refresh(List)
-end
+    Library.RefreshConfigsList = function(self, Element)
+        local CurrentList = { }
+        local List = { }
+
+        local ConfigFolderName = StringGSub(Library.Folders.Configs, Library.Folders.Directory .. "/", "")
+
+        for Index, Value in listfiles(Library.Folders.Configs) do
+            local FileName = StringGSub(Value, Library.Folders.Directory .. "\\" .. ConfigFolderName .. "\\", "")
+            List[Index] = FileName
+        end
+
+        local IsNew = #List ~= CurrentList
+
+        if not IsNew then
+            for Index = 1, #List do
+                if List[Index] ~= CurrentList[Index] then
+                    IsNew = true
+                    break
+                end
+            end
+        else
+            CurrentList = List
+            Element:Refresh(CurrentList)
+        end
+    end
 
     Library.ChangeItemTheme = function(self, Item, Properties)
         Item = Item.Instance or Item
@@ -1647,9 +1660,9 @@ Library.UIScale = Items["uiScale"]
 
             Toggle:Set(Data.Default)
 
-Library.SetFlags[Toggle.Flag] = function(Value)
-    Toggle:Set(Value)
-end
+            Library.SetFlags[Toggle.Flag] = function(Value)
+                Toggle:Set(Value)
+            end
 
             return Toggle, Items
         end
@@ -2481,9 +2494,9 @@ end
                 Dropdown:Set(Data.Default)
             end
 
-Library.SetFlags[Dropdown.Flag] = function(Value)
-    Dropdown:Set(Value)
-end
+            Library.SetFlags[Dropdown.Flag] = function(Value)
+                Dropdown:Set(Value)
+            end
 
             return Dropdown, Items 
         end
@@ -4116,9 +4129,9 @@ end
                 Keybind:Set({Key = Data.Default, Mode = Data.Mode or "Toggle"})
             end
 
-Library.SetFlags[Keybind.Flag] = function(Value)
-    Keybind:Set(Value)
-end
+            Library.SetFlags[Keybind.Flag] = function(Value)
+                Keybind:Set(Value)
+            end
 
             return Keybind, Items 
         end
@@ -4255,9 +4268,9 @@ end
                 Textbox:Set(Data.Default)
             end
 
-Library.SetFlags[Textbox.Flag] = function(Value)
-    Textbox:Set(Value)
-end
+            Library.SetFlags[Textbox.Flag] = function(Value)
+                Textbox:Set(Value)
+            end
 
             return Textbox, Items
         end
@@ -6024,8 +6037,8 @@ end
                 BackgroundColor3 = FromRGB(255, 255, 255)
             })
 
-Items["Text"] = Instances:Create("TextLabel", {
-    Parent = Items["BlankElement"].Instance,
+            Items["Text"] = Instances:Create("TextLabel", {
+                Parent = Items["Label"].Instance,
                 Name = "\0",
                 FontFace = Library.Font,
                 TextColor3 = FromRGB(235, 235, 235),
@@ -6048,233 +6061,193 @@ Items["Text"] = Instances:Create("TextLabel", {
         return BlankElement, Items
     end
 
-Library.CreateSettingsPage = function(self, Window)
-    local SettingsPage = Window:Page({Name = "Settings", SubPages = true}) do 
-        local ThemingSubPage = SettingsPage:SubPage({Name = "Theming", Columns = 2}) do 
-            local ThemesSection = ThemingSubPage:Section({Name = "Themes", Side = 1}) do
-                for Index, Value in Library.Theme do 
-                    ThemesSection:Label(Index):Colorpicker({
-                        Name = Index,
-                        Flag = Index.."Theme",
-                        Default = Value,
+    Library.CreateSettingsPage = function(self, Window, Watermark, KeybindList)
+        local SettingsPage = Window:Page({Name = "Settings", SubPages = true}) do 
+            local ThemingSubPage = SettingsPage:SubPage({Name = "Theming", Columns = 2}) do 
+                local ThemesSection = ThemingSubPage:Section({Name = "Themes", Side = 1}) do
+                    for Index, Value in Library.Theme do 
+                        ThemesSection:Label(Index):Colorpicker({
+                            Name = Index,
+                            Flag = Index.."Theme",
+                            Default = Value,
+                            Callback = function(Value)
+                                Library.Theme[Index] = Value
+                                Library:ChangeTheme(Index, Value)
+                            end
+                        })
+                    end
+                end
+            end
+
+            local ConfigsSubPage = SettingsPage:SubPage({Name = "Configs", Columns = 2}) do 
+                local ConfigsSection = ConfigsSubPage:Section({Name = "Configs", Side = 1}) do
+                    local ConfigName
+                    local ConfigSelected
+
+                    local ConfigsSearchbox = ConfigsSection:Searchbox({
+                        Name = "SearchboxConfigs",
+                        Flag = "ConfigsSearchobx",
+                        Items = { },
+                        Multi = false,
                         Callback = function(Value)
-                            Library.Theme[Index] = Value
-                            Library:ChangeTheme(Index, Value)
+                            ConfigSelected = Value
+                        end
+                    })
+
+                    ConfigsSection:Textbox({
+                        Name = "Config name", 
+                        Default = "", 
+                        Flag = "ConfigName", 
+                        Placeholder = "Enter text", 
+                        Callback = function(Value)
+                            ConfigName = Value
+                        end
+                    })
+
+                    local CreateAndDeleteButton = ConfigsSection:Button()
+
+                    CreateAndDeleteButton:Add("Create", function()
+                        if ConfigName and ConfigName ~= "" then
+                            if not isfile(Library.Folders.Configs .. "/" .. ConfigName .. ".json") then
+                                writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
+                                Library:Notification("Success", "Created config "..ConfigName .. " succesfully", 5)
+                                Library:RefreshConfigsList(ConfigsSearchbox)
+                            else
+                                Library:Notification("Error", "Config with the name "..ConfigName .. " already exists", 5)
+                                return
+                            end
+                        end
+                    end)
+
+                    CreateAndDeleteButton:Add("Delete", function()
+                        if ConfigSelected then
+                            Library:DeleteConfig(ConfigSelected)
+                            Library:Notification("Success", "Deleted config "..ConfigSelected .. " succesfully", 5)
+                            Library:RefreshConfigsList(ConfigsSearchbox)
+                        end
+                    end)
+
+                    local LoadAndSaveButton = ConfigsSection:Button()    
+
+                    LoadAndSaveButton:Add("Load", function()
+                        if ConfigSelected then
+                            local Success, Result = Library:LoadConfig(readfile(Library.Folders.Configs .. "/" .. ConfigSelected))
+
+                            if Success then 
+                                Library:Notification("Success", "Loaded config "..ConfigSelected .. " succesfully", 5)
+                            else
+                                Library:Notification("Error", "Failed to load config "..ConfigSelected .. " report this to the devs:\n"..Result, 5)
+                            end
+                        end
+                    end)
+
+                    LoadAndSaveButton:Add("Save", function()
+                        if ConfigName and ConfigName ~= "" then
+                            writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
+                            Library:Notification("Success", "Saved config "..ConfigName .. " succesfully", 5)
+                            Library:RefreshConfigsList(ConfigsSearchbox)
+                        end
+                    end)
+
+                    Library:RefreshConfigsList(ConfigsSearchbox)
+                end
+            end
+
+            local SettingsSubPage = SettingsPage:SubPage({Name = "Settings", Columns = 2}) do 
+                local SettingsSection = SettingsSubPage:Section({Name = "Settings", Side = 1}) do
+                    SettingsSection:Toggle({
+                        Name = "Watermark",
+                        Flag = "Watermark",
+                        Default = false,
+                        Callback = function(Value)
+                            Watermark:SetVisibility(Value)
+                        end
+                    })
+
+local scaley = 0.75
+SettingsSection:Textbox({
+    Name = "UI Scale", 
+    Default = "0.75", 
+    Flag = "UIScale", 
+    Placeholder = "0.4 - 2.0", 
+    Callback = function(Value)
+        scaley = tonumber(Value) or 0.75
+        Library:SetScale(scaley)
+    end
+})
+
+                    SettingsSection:Toggle({
+                        Name = "Keybind list",
+                        Flag = "Keybind list",
+                        Default = false,
+                        Callback = function(Value)
+                            KeybindList:SetVisibility(Value)
+                        end
+                    })
+
+                    SettingsSection:Slider({
+                        Name = "Fade time",
+                        Flag = "FadeTime",
+                        Default = Library.FadeSpeed,
+                        Min = 0,
+                        Max = 1,
+                        Decimals = 0.01,
+                        Callback = function(Value)
+                            Library.FadeSpeed = Value
+                        end
+                    })
+
+                    SettingsSection:Slider({
+                        Name = "Tween time",
+                        Flag = "TweenTime",
+                        Default = Library.Tween.Time,
+                        Min = 0,
+                        Max = 1,
+                        Decimals = 0.01,
+                        Callback = function(Value)
+                            Library.Tween.Time = Value
+                        end
+                    })
+
+                    SettingsSection:Dropdown({
+                        Name = "Tween style",
+                        Flag = "Tween style",
+                        Items = { "Linear", "Quad", "Quart", "Back", "Bounce", "Circular", "Cubic", "Elastic", "Exponential", "Sine", "Quint" },
+                        Default = "Cubic",
+                        Callback = function(Value)
+                            Library.Tween.Style = Enum.EasingStyle[Value]
+                        end
+                    })
+
+                    SettingsSection:Dropdown({
+                        Name = "Tween direction",
+                        Flag = "Tween direction",
+                        Items = { "In", "Out", "InOut" },
+                        Default = "Out",
+                        Callback = function(Value)
+                            Library.Tween.Direction = Enum.EasingDirection[Value]
+                        end
+                    })
+
+                    SettingsSection:Button():Add("Unload", function()
+                        Library:Unload()
+                    end)
+
+                    SettingsSection:Label("UI Keybind"):Keybind({
+                        Name = "Menu keybind",
+                        Flag = "UIKeybind",
+                        Default = Library.MenuKeybind,
+                        Mode = "Toggle",
+                        Callback = function()
+                            Library.MenuKeybind = Library.Flags["UIKeybind"].Key
                         end
                     })
                 end
             end
         end
-
-        local ConfigsSubPage = SettingsPage:SubPage({Name = "Configs"})
-        local SettingsSubPage = SettingsPage:SubPage({Name = "Settings"})
-
-        do -- Configs
-            local ConfigsSection = ConfigsSubPage:Section({Name = "Configs", Side = 1})
-
-            local ConfigName = ""
-            local ConfigSelected
-            local AutoLoadConfigName = ""
-            local AutoLoadFile = Library.Folders.Configs .. "/autoconfig.txt"
-
-            local ConfigsList = ConfigsSection:Dropdown({
-                Name = "Configs", 
-                Flag = "ConfigsList", 
-                Items = { }, 
-                Multi = false,
-                Callback = function(Value)
-                    ConfigSelected = Value
-                end
-            })
-
-            local AutoLoadLabel = ConfigsSection:Label("Auto Load: " .. (AutoLoadConfigName or "None"))
-
-            task.spawn(function()
-                while task.wait(0.5) do
-                    local text = "Auto Load: " .. (AutoLoadConfigName or "None")
-                    if AutoLoadLabel.Text ~= text then
-                        AutoLoadLabel:SetText(text)
-                    end
-                end
-            end)
-
-            if isfile(AutoLoadFile) then
-                local saved = readfile(AutoLoadFile)
-                if saved and saved ~= "" then
-                    AutoLoadConfigName = saved
-                    AutoLoadLabel:SetText("Auto Load: " .. AutoLoadConfigName)
-                end
-            end
-
-            ConfigsSection:Textbox({ 
-                Default = "", 
-                Flag = "ConfigName", 
-                Placeholder = "Config name", 
-                Callback = function(Value)
-                    ConfigName = Value
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Create",
-                Callback = function()
-                    if ConfigName and ConfigName ~= "" then
-                        local filePath = Library.Folders.Configs .. "/" .. ConfigName .. ".json"
-                        if not isfile(filePath) then
-                            writefile(filePath, Library:GetConfig())
-                            Library:RefreshConfigsList(ConfigsList)
-                        end
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Delete", 
-                Callback = function()
-                    if ConfigSelected then
-                        local filePath = Library.Folders.Configs .. "/" .. ConfigSelected .. ".json"
-                        if isfile(filePath) then
-                            delfile(filePath)
-                            Library:RefreshConfigsList(ConfigsList)
-                        end
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Load", 
-                Callback = function()
-                    if ConfigSelected then
-                        local filePath = Library.Folders.Configs .. "/" .. ConfigSelected .. ".json"
-                        if isfile(filePath) then
-                            Library:LoadConfig(readfile(filePath))
-                        end
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Save", 
-                Callback = function()
-                    if ConfigName and ConfigName ~= "" then
-                        writefile(Library.Folders.Configs .. "/" .. ConfigName .. ".json", Library:GetConfig())
-                        Library:RefreshConfigsList(ConfigsList)
-                    end
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Refresh", 
-                Callback = function()
-                    Library:RefreshConfigsList(ConfigsList)
-                end
-            })
-
-            ConfigsSection:Button({
-                Name = "Set Auto Load", 
-                Callback = function()
-                    if ConfigSelected then
-                        AutoLoadConfigName = ConfigSelected
-                        writefile(AutoLoadFile, AutoLoadConfigName)
-                        AutoLoadLabel:SetText("Auto Load: " .. AutoLoadConfigName)
-                    end
-                end
-            })
-
-            local function AutoLoadConfig()
-                if AutoLoadConfigName and AutoLoadConfigName ~= "" then
-                    local filePath = Library.Folders.Configs .. "/" .. AutoLoadConfigName .. ".json"
-                    if isfile(filePath) then
-                        Library:LoadConfig(readfile(filePath))
-                        print("Auto Loaded Config:", AutoLoadConfigName)
-                    end
-                end
-            end
-
-            Library:RefreshConfigsList(ConfigsList)
-            task.defer(AutoLoadConfig)
-        end
-
-        do -- Settings
-            local SettingsSection = SettingsSubPage:Section({Name = "Settings", Side = 1})     
-            
-            SettingsSection:Button({
-                Name = "Unload",
-                Callback = function()
-                    Library:Unload()
-                end
-            })
-
-            local ScaleLabel = SettingsSection:Label("Ui Scale Below")
-
-            local scaley
-            SettingsSection:Textbox({
-                Flag = "UIScale", 
-                Placeholder = "", 
-                Default = "1", 
-                Finished = false, 
-                Numeric = true, 
-                Callback = function(Value)
-                    scaley = Value
-                end
-            })
-
-            task.spawn(function()
-                while task.wait(0) do
-                    pcall(function()
-                        Library:SetScale(scaley)
-                    end)
-                end
-            end)
-
-SettingsSection:Label("Menu Keybind"):Keybind({
-    Name = "Menu Keybind",
-    Flag = "MenuKeybind",
-    Default = Library.MenuKeybind,
-    Mode = "Toggle",
-    Callback = function()
-        Library.MenuKeybind = Library.Flags["MenuKeybind"].Key
+        
+        return SettingsPage
     end
-})
-
-            SettingsSection:Slider({
-                Name = "Tween Speed",
-                Default = 0.3,
-                Flag = "Tween Speed",
-                Decimals = 0.01,
-                Suffix = "s",
-                Max = 10,
-                Min = 0,
-                Callback = function(Value)
-                    Library.Tween.Time = Value
-                end
-            })
-
-            SettingsSection:Dropdown({
-                Name = "Tween Style",
-                Flag = "Tween style",
-                Items = { "Linear", "Quad", "Quart", "Back", "Bounce", "Circular", "Cubic", "Elastic", "Exponential", "Sine", "Quint" },
-                Default = "Quart",
-                Callback = function(Value)
-                    if not Value then Value = "Quint" end
-                    Library.Tween.Style = Enum.EasingStyle[Value]
-                end
-            })
-
-            SettingsSection:Dropdown({
-                Name = "Tween Direction",
-                Flag = "Tween direction",
-                Items = { "In", "Out", "InOut" },
-                Default = "Out",
-                Callback = function(Value)
-                    if not Value then Value = "Out" end
-                    Library.Tween.Direction = Enum.EasingDirection[Value]
-                end
-            })
-        end
-    end
-    
-    return SettingsPage
 end
 
 getgenv().Library = Library
