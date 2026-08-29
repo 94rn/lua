@@ -820,23 +820,23 @@ local Library do
 		return `<font color="rgb({MathFloor(Color.R * 255)}, {MathFloor(Color.G * 255)}, {MathFloor(Color.B * 255)})">{Text}</font>`
 	end
 
-    Library.GetConfig = function(self)
-        local Config = { } 
+Library.GetConfig = function(self)
+    local Config = { } 
 
-        local Success, Result = Library:SafeCall(function()
-            for Index, Value in Library.Flags do 
-                if type(Value) == "table" and Value.Key then
-                    Config[Index] = {Key = tostring(Value.Key), Mode = Value.Mode}
-                elseif type(Value) == "table" and Value.Color then
-                    Config[Index] = {Color = "#" .. Value.Color, Alpha = Value.Alpha}
-                else
-                    Config[Index] = Value
-                end
+    local Success, Result = Library:SafeCall(function()
+        for Index, Value in Library.Flags do 
+            if type(Value) == "table" and Value.Key then
+                Config[Index] = {Key = tostring(Value.Key), Mode = Value.Mode}
+            elseif type(Value) == "table" and Value.Color then
+                Config[Index] = {Color = "#" .. Value.HexValue, Alpha = Value.Alpha}
+            else
+                Config[Index] = Value
             end
-        end)
+        end
+    end)
 
-        return HttpService:JSONEncode(Config)
-    end
+    return HttpService:JSONEncode(Config)
+end
 
 Library.LoadConfig = function(self, Config)
     local Decoded = HttpService:JSONDecode(Config)
@@ -850,7 +850,7 @@ Library.LoadConfig = function(self, Config)
             end
 
             if type(Value) == "table" and Value.Key then 
-                SetFunction({Key = Value.Key, Mode = Value.Mode})
+                SetFunction(Value)
             elseif type(Value) == "table" and Value.Color then
                 SetFunction(Value.Color, Value.Alpha)
             else
@@ -861,7 +861,6 @@ Library.LoadConfig = function(self, Config)
 
     return Success, Result
 end
-
     Library.DeleteConfig = function(self, Config)
         if isfile(Library.Folders.Configs .. "/" .. Config) then 
             delfile(Library.Folders.Configs .. "/" .. Config)
