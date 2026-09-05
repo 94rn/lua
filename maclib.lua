@@ -2524,21 +2524,16 @@ function MacLib:Window(Settings)
 					dropdownImage.Size = UDim2.fromOffset(14, 14)
 					dropdownImage.Parent = dropdown
 
-local dropdownFrame = Instance.new("ScrollingFrame")  -- Change from "Frame" to "ScrollingFrame"
-dropdownFrame.Name = "DropdownFrame"
-dropdownFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-dropdownFrame.BackgroundTransparency = 1
-dropdownFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-dropdownFrame.BorderSizePixel = 0
-dropdownFrame.ClipsDescendants = true
-dropdownFrame.Size = UDim2.fromScale(1, 1)
-dropdownFrame.Visible = false
-dropdownFrame.AutomaticSize = Enum.AutomaticSize.Y
-dropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)  -- Will be updated dynamically
-dropdownFrame.ScrollBarThickness = 4
-dropdownFrame.ScrollBarImageTransparency = 0.5
-dropdownFrame.BottomImage = ""
-dropdownFrame.TopImage = ""
+					local dropdownFrame = Instance.new("Frame")
+					dropdownFrame.Name = "DropdownFrame"
+					dropdownFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					dropdownFrame.BackgroundTransparency = 1
+					dropdownFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					dropdownFrame.BorderSizePixel = 0
+					dropdownFrame.ClipsDescendants = true
+					dropdownFrame.Size = UDim2.fromScale(1, 1)
+					dropdownFrame.Visible = false
+					dropdownFrame.AutomaticSize = Enum.AutomaticSize.Y
 
 					local dropdownFrameUIPadding = Instance.new("UIPadding")
 					dropdownFrameUIPadding.Name = "DropdownFrameUIPadding"
@@ -2605,26 +2600,22 @@ dropdownFrame.TopImage = ""
 					searchBox.BorderSizePixel = 0
 					searchBox.Size = UDim2.fromScale(1, 1)
 
-local function CalculateDropdownSize()
-    local totalHeight = 0
-    local visibleChildrenCount = 0
-    local padding = dropdownFrameUIPadding.PaddingTop.Offset + dropdownFrameUIPadding.PaddingBottom.Offset
+					local function CalculateDropdownSize()
+						local totalHeight = 0
+						local visibleChildrenCount = 0
+						local padding = dropdownFrameUIPadding.PaddingTop.Offset + dropdownFrameUIPadding.PaddingBottom.Offset
 
-    for _, v in pairs(dropdownFrame:GetChildren()) do
-        if not v:IsA("UIComponent") and v.Visible then
-            totalHeight += v.AbsoluteSize.Y
-            visibleChildrenCount += 1
-        end
-    end
+						for _, v in pairs(dropdownFrame:GetChildren()) do
+							if not v:IsA("UIComponent") and v.Visible then
+								totalHeight += v.AbsoluteSize.Y
+								visibleChildrenCount += 1
+							end
+						end
 
-    local spacing = dropdownFrameUIListLayout.Padding.Offset * (visibleChildrenCount - 1)
-    local height = totalHeight + spacing + padding
-    
-    -- Update canvas size for scrolling
-    dropdownFrame.CanvasSize = UDim2.new(0, 0, 0, height)
-    
-    return height
-end
+						local spacing = dropdownFrameUIListLayout.Padding.Offset * (visibleChildrenCount - 1)
+
+						return totalHeight + spacing + padding
+					end
 
 					local function findOption()
 						local searchTerm = searchBox.Text:lower()
