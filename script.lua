@@ -1,6 +1,6 @@
 getgenv().Cosmetic = "Frozen Aura"
 
-getgenv().Cosmetic2 = "Cape"
+getgenv().Cosmetic = "Cape"
 
 local Event = game:GetService("ReplicatedStorage")
     .Packages.Knit.Services.CustomizationService.RE.Customize
@@ -11,10 +11,10 @@ Event:FireServer(
     getgenv().Cosmetic,
     "1"
 )
-task.wait(0)
+task.wait(1)
 Event:FireServer(
     "Cosmetics",
-    getgenv().Cosmetic2,
+    getgenv().Cosmetic,
     "1"
 )
 end
